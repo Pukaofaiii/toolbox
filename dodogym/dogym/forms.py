@@ -1,6 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
+from django import forms
+from .models import Member
 from .models import *
 
 class StaffRegistrationForm(forms.Form):
@@ -41,3 +44,75 @@ class MemberRegistrationForm(forms.ModelForm):
         model = Member
         fields = ['first_name', 'last_name', 'id_card', 'birth_date', 'gender', 'weight', 'height', 'phone_number']
 
+    first_name = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-input mt-1 block w-full rounded-md border-yellow-500 p-3 shadow-md  focus:border-blue-500 focus:ring-blue-300 sm:text-sm',
+            'placeholder': 'ชื่อ'
+        }),
+        label="ชื่อ",
+    )
+
+    last_name = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-input mt-1 block w-full rounded-md border-orange-500 p-3 shadow-md  focus:border-blue-500 focus:ring-blue-300 sm:text-sm',
+            'placeholder': 'นามสกุล'
+        }),
+        label="นามสกุล",
+    )
+
+    id_card = forms.CharField(
+        validators=[
+            RegexValidator(
+                regex=r'^\d{13}$',
+                message="รหัสบัตรประชาชนต้องเป็นตัวเลข 13 หลัก",
+                code="invalid_id_card"
+            )
+        ],
+        widget=forms.TextInput(attrs={
+            'class': 'form-input mt-1 block w-full rounded-md border-orange-500 p-3 shadow-md  focus:border-blue-500 focus:ring-blue-300 sm:text-sm',
+            'placeholder': 'รหัสบัตรประชาชน',
+            'maxlength': '13'
+        }),
+        label="รหัสบัตรประชาชน",
+    )
+
+    birth_date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'class': 'form-input mt-1 block w-full rounded-md border-orange-500 p-3 shadow-md  focus:border-blue-500 focus:ring-blue-300 sm:text-sm',
+            'type': 'date'
+        }),
+        label="วันเดือนปีเกิด",
+    )
+
+    gender = forms.ChoiceField(
+        choices=Member.GENDER_CHOICES,  # Match model choices
+        widget=forms.Select(attrs={
+            'class': 'form-select mt-1 block w-full rounded-md border-orange-500 p-3 shadow-sm focus:border-blue-500 focus:ring-blue-300 sm:text-sm'
+        }),
+        label="เพศ",
+    )
+
+    weight = forms.FloatField(
+        widget=forms.NumberInput(attrs={
+            'class': 'form-input mt-1 block w-full rounded-md border-orange-500 p-3 shadow-md  focus:border-blue-500 focus:ring-blue-300 sm:text-sm',
+            'placeholder': 'น้ำหนัก (กก.)'
+        }),
+        label="น้ำหนัก (กก.)",
+    )
+
+    height = forms.FloatField(
+        widget=forms.NumberInput(attrs={
+            'class': 'form-input mt-1 block w-full rounded-md border-orange-500 p-3 shadow-md  focus:border-blue-500 focus:ring-blue-300 sm:text-sm',
+            'placeholder': 'ส่วนสูง (ซม.)'
+        }),
+        label="ส่วนสูง (ซม.)",
+    )
+
+    phone_number = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-input mt-1 block w-full rounded-md border-orange-500 p-3 shadow-md  focus:border-blue-500 focus:ring-blue-300 sm:text-sm',
+            'placeholder': 'เบอร์โทรศัพท์',
+            'maxlength': '15'
+        }),
+        label="เบอร์โทรศัพท์",
+    )

@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -5,343 +8,129 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบจัดการฟิตเนส</title>
     {% load static %}
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Prompt', sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .main-container {
-            display: flex;
-            min-height: 100vh;
-        }
-        
-        .sidebar {
-            width: 350px;
-            background-color: #343a40;
-            color: white;
-            padding: 20px;
-            position: relative;
-        }
-        
-        .content-container {
-            flex: 1;
-            padding: 20px;
-            background-image: url('{% static "bg-fitness.jpg" %}');
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
-        
-        .content-container::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.6);
-            z-index: 1;
-        }
-        
-        .content {
-            position: relative;
-            z-index: 2;
-            color: white;
-            text-align: center;
-            padding-top: 100px;
-        }
-        
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #ff6b00;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #444;
-            padding-bottom: 15px;
-        }
-        
-        .login-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: #ff6b00;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        
-        .login-button:hover {
-            background-color: #e05f00;
-            color: white;
-            text-decoration: none;
-        }
-        
-        .member-info {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        
-        .info-item {
-            margin-bottom: 15px;
-        }
-        
-        .label {
-            font-weight: 500;
-            font-size: 14px;
-            color: #adb5bd;
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        .value {
-            font-weight: 600;
-            font-size: 16px;
-        }
-        
-        .search-form {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        
-        .form-control {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid #444;
-            color: white;
-            margin-bottom: 15px;
-        }
-        
-        .form-control::placeholder {
-            color: #adb5bd;
-        }
-        
-        .btn-search {
-            background-color: #ff6b00;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 10px;
-        }
-        
-        .status-active {
-            color: #28a745;
-        }
-        
-        .status-inactive {
-            color: #dc3545;
-        }
-        
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            border-left: 3px solid #ff6b00;
-            padding-left: 10px;
-        }
-        
-        .content h1 {
-            font-size: 48px;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        .content p {
-            font-size: 18px;
-            max-width: 700px;
-            margin: 0 auto 30px;
-        }
-        
-        .cta-button {
-            background-color: #ff6b00;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-size: 18px;
-            border-radius: 50px;
-            text-decoration: none;
-            transition: background-color 0.3s;
-            display: inline-block;
-        }
-        
-        .cta-button:hover {
-            background-color: #e05f00;
-            color: white;
-            text-decoration: none;
-        }
 
-        /* เพิ่ม CSS สำหรับแสดงรายการผลลัพธ์ */
-        .search-results {
-            margin-top: 20px;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'fitness-orange': '#ff6b00',
+                        'fitness-dark': '#343a40',
+                    },
+                    fontFamily: {
+                        'prompt': ['Prompt', 'sans-serif'],
+                    }
+                }
+            }
         }
-
-        .member-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .member-item {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 10px;
-        }
-
-        .member-name {
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        .member-details {
-            font-size: 14px;
-            color: #adb5bd;
-            margin-bottom: 10px;
-        }
-
-        .btn-view-member {
-            display: block;
-            background-color: #ff6b00;
-            color: white;
-            text-align: center;
-            padding: 5px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .btn-view-member:hover {
-            background-color: #e05f00;
-            color: white;
-            text-decoration: none;
-        }
-
-        .search-hint {
-            margin-top: 10px;
-            color: #adb5bd;
-            font-size: 13px;
-        }
-
-        /* เพิ่ม CSS สำหรับช่องค้นหา 3 แบบ */
-        .search-inputs {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .search-label {
-            font-size: 14px;
-            color: #adb5bd;
-            margin-bottom: 2px;
-        }
-    </style>
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="main-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="logo">FITCLUB</div>
-            <a href="{% url 'login' %}" class="login-button">เข้าสู่ระบบ</a>
+<body class="font-prompt bg-fitness-dark m-0 p-0 min-h-screen">
+    <!-- Header Bar -->
+    <header class="bg-fitness-dark border-b border-gray-700 py-4 px-6 flex justify-between items-center">
+        <div class="text-2xl font-bold text-fitness-orange">FITCLUB</div>
+        <a href="{% url 'login' %}" class="bg-fitness-orange text-white font-bold py-2 px-4 rounded transition-colors tracking-wide hover:bg-[#e05f00]">เข้าสู่ระบบ</a>
+    </header>
 
-            <h4 class="section-title">ข้อมูลสมาชิก</h4>
+    <!-- Main Content -->
+    <div class="container mx-auto py-10 px-4 flex flex-col items-center">
+        {% if member or search_results %}
+            <!-- ปุ่มย้อนกลับ -->
+            <a href="{% url 'home' %}" class="self-start mb-6 flex items-center text-gray-400 hover:text-fitness-orange transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                ย้อนกลับไปหน้าค้นหา
+            </a>
+        {% endif %}
 
-            {% if member %}
-                <div class="member-info">
-                    <div class="info-item">
-                        <span class="label">ชื่อ-นามสกุล</span>
-                        <span class="value">{{ member.first_name }} {{ member.last_name }}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">เลขบัตรประชาชน</span>
-                        <span class="value">{{ member.id_card }}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="label">เบอร์โทรศัพท์</span>
-                        <span class="value">{{ member.phone_number }}</span>
-                    </div>
+        {% if member %}
+            <!-- ข้อมูลสมาชิก -->
+            <div class="bg-white bg-opacity-10 rounded-lg p-6 max-w-md w-full">
+                <h4 class="text-lg font-semibold mb-5 text-white border-l-4 border-fitness-orange pl-3">ข้อมูลสมาชิก</h4>
 
-                    {% if subscription %}
-                        <div class="info-item">
-                            <span class="label">สถานะสมาชิก</span>
-                            <span class="value status-active">ใช้งานได้</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="label">วันหมดอายุ</span>
-                            <span class="value">{{ subscription.expiry_date|date:"d/m/Y" }}</span>
-                        </div>
-                    {% else %}
-                        <div class="info-item">
-                            <span class="label">สถานะสมาชิก</span>
-                            <span class="value status-inactive">หมดอายุหรือยังไม่ได้สมัคร</span>
-                        </div>
-                    {% endif %}
+                <div class="mb-4">
+                    <span class="block text-sm text-gray-300 mb-1">ชื่อ-นามสกุล</span>
+                    <span class="text-base font-semibold text-white">{{ member.first_name }} {{ member.last_name }}</span>
                 </div>
-            {% elif search_results and search_results.count > 1 %}
-                <!-- แสดงผลลัพธ์การค้นหาเมื่อพบหลายคน -->
-                <div class="search-results">
-                    <h4 class="section-title">ผลการค้นหา ({{ search_results.count }} รายการ)</h4>
-                    <div class="member-list">
-                        {% for result in search_results %}
-                            <div class="member-item">
-                                <div class="member-name">{{ result.first_name }} {{ result.last_name }}</div>
-                                <div class="member-details">
-                                    <div>เลขบัตรฯ: {{ result.id_card }}</div>
-                                    <div>เบอร์โทร: {{ result.phone_number }}</div>
-                                </div>
-                                <a href="?name=&id_card={{ result.id_card }}&phone=" class="btn-view-member">ดูข้อมูล</a>
-                            </div>
-                        {% endfor %}
-                    </div>
+                <div class="mb-4">
+                    <span class="block text-sm text-gray-300 mb-1">เลขบัตรประชาชน</span>
+                    <span class="text-base font-semibold text-white">{{ member.id_card }}</span>
                 </div>
-            {% else %}
-                <div class="search-form">
-                    <p>กรุณากรอกข้อมูลให้ครบถ้วน</p>
-                    <form method="GET" action="">
-                        <div class="search-inputs">
-                            <div>
-                                <div class="search-label">ชื่อ-นามสกุล</div>
-                                <input type="text" name="name" class="form-control" placeholder="ระบุชื่อหรือนามสกุล" value="{{ name|default:'' }}">
+                <div class="mb-4">
+                    <span class="block text-sm text-gray-300 mb-1">เบอร์โทรศัพท์</span>
+                    <span class="text-base font-semibold text-white">{{ member.phone_number }}</span>
+                </div>
+
+                {% if subscription %}
+                    <div class="mb-4">
+                        <span class="block text-sm text-gray-300 mb-1">สถานะสมาชิก</span>
+                        <span class="text-base font-semibold text-green-500">ใช้งานได้</span>
+                    </div>
+                    <div class="mb-4">
+                        <span class="block text-sm text-gray-300 mb-1">วันหมดอายุ</span>
+                        <span class="text-base font-semibold text-white">{{ subscription.expiry_date|date:"d/m/Y" }}</span>
+                    </div>
+                {% else %}
+                    <div class="mb-4">
+                        <span class="block text-sm text-gray-300 mb-1">สถานะสมาชิก</span>
+                        <span class="text-base font-semibold text-red-500">หมดอายุหรือยังไม่ได้สมัคร</span>
+                    </div>
+                {% endif %}
+            </div>
+
+        {% elif search_results and search_results.count > 1 %}
+            <!-- ผลการค้นหา -->
+            <div class="max-w-2xl w-full">
+                <h4 class="text-lg font-semibold mb-4 text-white border-l-4 border-fitness-orange pl-3">ผลการค้นหา ({{ search_results.count }} รายการ)</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+                    {% for result in search_results %}
+                        <div class="bg-white bg-opacity-10 rounded-lg p-4">
+                            <div class="font-bold text-base mb-1 text-white">{{ result.first_name }} {{ result.last_name }}</div>
+                            <div class="text-sm text-gray-300 mb-3">
+                                <div>เลขบัตรฯ: {{ result.id_card }}</div>
+                                <div>เบอร์โทร: {{ result.phone_number }}</div>
                             </div>
-                            <div>
-                                <div class="search-label">เลขบัตรประชาชน</div>
-                                <input type="text" name="id_card" class="form-control" placeholder="ระบุเลขบัตรประชาชน" value="{{ id_card|default:'' }}">
-                            </div>
-                            <div>
-                                <div class="search-label">เบอร์โทรศัพท์</div>
-                                <input type="text" name="phone" class="form-control" placeholder="ระบุเบอร์โทรศัพท์" value="{{ phone|default:'' }}">
-                            </div>
+                            <a href="?search={{ result.id_card }}" class="block bg-fitness-orange text-white text-center py-1.5 px-2 rounded text-sm hover:bg-[#e05f00] transition-colors">ดูข้อมูล</a>
                         </div>
-                        <button type="submit" class="btn btn-search">ค้นหา</button>
-                        <div class="search-hint">
-                            <small>* สามารถค้นหาด้วยช่องใดช่องหนึ่ง หรือหลายช่องพร้อมกัน</small>
+                    {% endfor %}
+                </div>
+            </div>
+
+        {% else %}
+            <!-- ฟอร์มค้นหา -->
+            <div class="max-w-xl w-full">
+                <h1 class="text-5xl font-bold text-center mb-2 text-white tracking-wide">FITCLUB </h1>
+                <h1 class="text-3xl font-bold text-fitness-orange text-center tracking-wide">FITNESS</h1>
+                <p class="text-gray-400 text-center mb-10">ระบบตรวจสอบข้อมูลสมาชิก</p>
+
+                <div class="bg-white bg-opacity-10 rounded-lg p-6">
+                    <p class="mb-6 text-white text-center">กรุณากรอกข้อมูลที่ต้องการค้นหา</p>
+                    <form method="GET" action="" class="mb-2">
+                        <div class="mb-4 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input type="text" name="search" class="w-full bg-white bg-opacity-10 border border-gray-600 text-white rounded-lg px-10 py-3 focus:outline-none focus:border-fitness-orange" placeholder="ค้นหาด้วย ชื่อ, เลขบัตรประชาชน หรือเบอร์โทร" value="{{ search|default:'' }}">
+                        </div>
+                        <button type="submit" class="w-full bg-fitness-orange text-white py-3 px-4 rounded-lg font-semibold hover:bg-[#e05f00] transition-colors flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            ค้นหา
+                        </button>
+                        <div class="mt-3 text-gray-400 text-xs text-center">
+                            <small>* สามารถค้นหาด้วย ชื่อ-นามสกุล, เลขบัตรประชาชน หรือเบอร์โทรศัพท์</small>
                         </div>
                     </form>
                 </div>
-            {% endif %}
-        </div>
-        
-        <!-- Main Content -->
-        <div class="content-container">
-            <div class="content">
-                <h1>ยินดีต้อนรับสู่ FITCLUB</h1>
-                <p>สถานที่ออกกำลังกายที่มีอุปกรณ์ครบครัน พร้อมผู้ฝึกสอนมืออาชีพ</p>
-                <a href="#" class="cta-button">สมัครสมาชิกวันนี้</a>
             </div>
-        </div>
+        {% endif %}
     </div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+{% endblock %}

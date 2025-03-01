@@ -7,11 +7,13 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.db.models import Max
 from .forms import *
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import *
 import datetime
+import pytz
 from django.utils import timezone
 from datetime import timedelta
 from django.views.decorators.http import require_http_methods
@@ -20,7 +22,7 @@ from django.http import JsonResponse
 
 @login_required
 def register_staff(request):
-    # ตรวจสอบว่าผู้ใช้เป็น admin หรือ superuser หรือไม่ฏ
+    # ตรวจสอบว่าผู้ใช้เป็น admin หรือ superuser หรือไม่
     if not (request.user.is_superuser or
            (hasattr(request.user, 'staff_profile') and request.user.staff_profile.is_admin)):
         messages.error(request, 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้')
@@ -52,30 +54,21 @@ def register_staff(request):
 
     return render(request, 'register_staff.html', {'form': form})
 
-
 def home_view(request):
     member = None
     subscription = None
     search_results = []
 
-    # รับค่าจากฟอร์มค้นหา
-    name = request.GET.get('name', '')
-    id_card = request.GET.get('id_card', '')
-    phone = request.GET.get('phone', '')
+    # รับค่าจากฟอร์มค้นหาแบบช่องเดียว
+    search_query = request.GET.get('search', '')
 
-    # ถ้ามีการค้นหา (มีการกรอกข้อมูลในช่องใดช่องหนึ่ง)
-    if name or id_card or phone:
-        # สร้าง query object สำหรับการค้นหา
+    # ถ้ามีการค้นหา (มีการกรอกข้อมูลในช่องค้นหา)
+    if search_query:
+        # สร้าง query object สำหรับการค้นหาจากทุกฟิลด์
         query = Q()
-
-        if name:
-            query |= Q(first_name__icontains=name) | Q(last_name__icontains=name)
-
-        if id_card:
-            query |= Q(id_card__icontains=id_card)
-
-        if phone:
-            query |= Q(phone_number__icontains=phone)
+        query |= Q(first_name__icontains=search_query) | Q(last_name__icontains=search_query)
+        query |= Q(id_card__icontains=search_query)
+        query |= Q(phone_number__icontains=search_query)
 
         # ค้นหาด้วย query
         search_results = Member.objects.filter(query)
@@ -88,12 +81,9 @@ def home_view(request):
     return render(request, 'user_sidebar.html', {
         'member': member,
         'subscription': subscription,
-        'name': name,
-        'id_card': id_card,
-        'phone': phone,
+        'search': search_query,
         'search_results': search_results
     })
-
 
 def login_view(request):
     # เก็บ URL ที่จะไปหลังจาก login
@@ -136,22 +126,30 @@ def logout_view(request):
 
 @login_required
 def staff_dashboard(request):
-    # ค้นหาวันที่ในวันนี้
-    today = timezone.now().date()
+    # Activate Bangkok timezone
+    tz = pytz.timezone('Asia/Bangkok')
+    timezone.activate(tz)
 
-    # ดึงการเช็คอินล่าสุดของแต่ละสมาชิกในวันนี้
-    checkins_today = CheckIn.objects.filter(check_in_time__date=today)
+    # Get today's date in Bangkok timezone
+    today = timezone.localtime(timezone.now(), tz).date()
+    print(f"Today's Date (Bangkok Time): {today}")
 
-    # กรองสมาชิกที่เช็คอินล่าสุด
-    latest_checkins = []
-    for member in Member.objects.all():
-        # ค้นหาการเช็คอินล่าสุดของสมาชิก
-        latest_checkin = checkins_today.filter(member=member).order_by('-check_in_time').first()
-        if latest_checkin:
-            latest_checkins.append(latest_checkin)
+    # Get the latest check-in for each member today
+    latest_checkins = CheckIn.objects.filter(check_in_time__date=today).values('member').annotate(
+        latest_check_in=Max('check_in_time')
+    )
+
+    # Fetch the full CheckIn records using the latest check-in times
+    latest_checkin_records = CheckIn.objects.filter(
+        check_in_time__in=[entry['latest_check_in'] for entry in latest_checkins]
+    ).select_related('member')  # Optimized query with join
+
+    # Debugging output
+    for checkin in latest_checkin_records:
+        print(f"Member: {checkin.member.first_name} {checkin.member.last_name}, Last Check-in: {checkin.check_in_time}")
 
     return render(request, 'staff/staff_dashboard.html', {
-        'checkins_today': latest_checkins  # ส่งข้อมูลการเช็คอินล่าสุดไปยังเทมเพลต
+        'checkins_today': latest_checkin_records  # ส่งข้อมูลการเช็คอินล่าสุดไปยังเทมเพลต
     })
 
 
@@ -432,12 +430,23 @@ def delete_user(request, user_type, user_id):
 
 
 def register_member(request):
+    print(request.POST)
     if request.method == 'POST':
         form = MemberRegistrationForm(request.POST)
+
         if form.is_valid():
+            _first_name_checker = form.cleaned_data['first_name']
+            _national_id = form.cleaned_data['id_card']
+
+            if Member.objects.filter(first_name=_first_name_checker).exists() or Member.objects.filter(id_card=_national_id).exists():
+                messages.error(request, "พบชื่อผู้ใช้ซ้ำ กรุณาใช้ชื่ออื่น")
+
+                # return redirect('staff_dashboard')
+
             form.save()
             messages.success(request, "ลงทะเบียนสมาชิกใหม่สำเร็จ!")
             return redirect('staff_dashboard')
+
     else:
         form = MemberRegistrationForm()
 
@@ -522,13 +531,22 @@ def check_in_member(request):
             if not hasattr(request.user, 'staff_profile'):
                 messages.error(request, "คุณต้องเป็นพนักงานในการเช็คอินสมาชิก")
                 return redirect('staff_dashboard')  # หรือให้ redirect ไปยังหน้าที่ต้องการ
+            # print(timezone.now())
+            # tz = pytz.timezone('Asia/Bangkok')
 
-            # เช็คอินและบันทึกลงฐานข้อมูล
-            CheckIn.objects.create(
+            # # Print the correct Bangkok time for debugging
+            # abc = timezone.localtime(timezone.now(), tz)
+
+            # Create CheckIn record (Django automatically stores in UTC)
+            new_record = CheckIn(
                 member=member,
-                check_in_time=timezone.now(),
-                checked_by=request.user.staff_profile  # ใช้ staff_profile จาก user
+                checked_by=request.user.staff_profile,  
+                # check_in_time=abc,  # Keep timezone.now() as is
             )
+
+            # print(new_record)
+            new_record.save()
+            
             messages.success(request, f"เช็คอิน {member.first_name} {member.last_name} สำเร็จ!")
 
     return render(request, 'staff/check_in_member.html', {'member': member, 'query': query})

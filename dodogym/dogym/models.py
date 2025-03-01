@@ -79,7 +79,7 @@ class Subscription(models.Model):
 
 class CheckIn(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='checkins', verbose_name="สมาชิก")
-    check_in_time = models.DateTimeField(default=timezone.now, verbose_name="เวลาที่เช็คอิน")
+    check_in_time = models.DateTimeField(auto_now_add=True)
     checked_by = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, verbose_name="พนักงานที่เช็คอิน")
 
     def __str__(self):
