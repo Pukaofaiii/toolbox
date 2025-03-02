@@ -29,7 +29,7 @@
 <body class="font-prompt bg-fitness-dark m-0 p-0 min-h-screen">
     <!-- Header Bar -->
     <header class="bg-fitness-dark border-b border-gray-700 py-4 px-6 flex justify-between items-center">
-        <div class="text-2xl font-bold text-fitness-orange">FITCLUB</div>
+        <div class="text-2xl font-bold text-fitness-orange">JOJOGYM</div>
         <a href="{% url 'login' %}" class="bg-fitness-orange text-white font-bold py-2 px-4 rounded transition-colors tracking-wide hover:bg-[#e05f00]">เข้าสู่ระบบ</a>
     </header>
 
@@ -53,10 +53,6 @@
                 <div class="mb-4">
                     <span class="block text-sm text-gray-300 mb-1">ชื่อ-นามสกุล</span>
                     <span class="text-base font-semibold text-white">{{ member.first_name }} {{ member.last_name }}</span>
-                </div>
-                <div class="mb-4">
-                    <span class="block text-sm text-gray-300 mb-1">เลขบัตรประชาชน</span>
-                    <span class="text-base font-semibold text-white">{{ member.id_card }}</span>
                 </div>
                 <div class="mb-4">
                     <span class="block text-sm text-gray-300 mb-1">เบอร์โทรศัพท์</span>
@@ -89,7 +85,6 @@
                         <div class="bg-white bg-opacity-10 rounded-lg p-4">
                             <div class="font-bold text-base mb-1 text-white">{{ result.first_name }} {{ result.last_name }}</div>
                             <div class="text-sm text-gray-300 mb-3">
-                                <div>เลขบัตรฯ: {{ result.id_card }}</div>
                                 <div>เบอร์โทร: {{ result.phone_number }}</div>
                             </div>
                             <a href="?search={{ result.id_card }}" class="block bg-fitness-orange text-white text-center py-1.5 px-2 rounded text-sm hover:bg-[#e05f00] transition-colors">ดูข้อมูล</a>
@@ -101,8 +96,8 @@
         {% else %}
             <!-- ฟอร์มค้นหา -->
             <div class="max-w-xl w-full">
-                <h1 class="text-5xl font-bold text-center mb-2 text-white tracking-wide">FITCLUB </h1>
-                <h1 class="text-3xl font-bold text-fitness-orange text-center tracking-wide">FITNESS</h1>
+                <h1 class="text-5xl font-bold text-center mb-2 text-white tracking-wide">JOJOGYM </h1>
+                <h1 class="text-xl font-bold text-fitness-orange text-center tracking-wide">BY DEEDO POKEMONTRAINER สุดหล่อ</h1>
                 <p class="text-gray-400 text-center mb-10">ระบบตรวจสอบข้อมูลสมาชิก</p>
 
                 <div class="bg-white bg-opacity-10 rounded-lg p-6">
@@ -114,7 +109,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
-                            <input type="text" name="search" class="w-full bg-white bg-opacity-10 border border-gray-600 text-white rounded-lg px-10 py-3 focus:outline-none focus:border-fitness-orange" placeholder="ค้นหาด้วย ชื่อ, เลขบัตรประชาชน หรือเบอร์โทร" value="{{ search|default:'' }}">
+                            <input type="text" name="search" class="w-full bg-white bg-opacity-10 border border-gray-600 text-white rounded-lg px-10 py-3 focus:outline-none focus:border-fitness-orange" placeholder="ค้นหาด้วย ชื่อ หรือเบอร์โทร" value="{{ search|default:'' }}">
                         </div>
                         <button type="submit" class="w-full bg-fitness-orange text-white py-3 px-4 rounded-lg font-semibold hover:bg-[#e05f00] transition-colors flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -123,7 +118,7 @@
                             ค้นหา
                         </button>
                         <div class="mt-3 text-gray-400 text-xs text-center">
-                            <small>* สามารถค้นหาด้วย ชื่อ-นามสกุล, เลขบัตรประชาชน หรือเบอร์โทรศัพท์</small>
+                            <small>* สามารถค้นหาด้วย ชื่อ-นามสกุล หรือเบอร์โทรศัพท์</small>
                         </div>
                     </form>
                 </div>

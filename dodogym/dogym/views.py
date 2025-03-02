@@ -455,7 +455,7 @@ def register_member(request):
 def add_subscription(request):
     member = None
     if request.method == 'POST':
-        # ค้นหาสมาชิกจาก query ที่กรอก (ค้นหาจากชื่อ, รหัสบัตรประชาชน, หรือเบอร์โทร)
+
         query = request.POST.get('query', '')
         if query:
             # ค้นหาจากชื่อ, นามสกุล, รหัสบัตรประชาชน หรือเบอร์โทร
