@@ -2,3 +2,4 @@ django
 django_browser_reload
 django-tailwind
 Plotly
+pytz
