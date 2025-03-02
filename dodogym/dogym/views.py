@@ -547,6 +547,6 @@ def check_in_member(request):
             # print(new_record)
             new_record.save()
             
-            messages.success(request, f"เช็คอิน {member.first_name} {member.last_name} สำเร็จ!")
+
 
     return render(request, 'staff/check_in_member.html', {'member': member, 'query': query})
